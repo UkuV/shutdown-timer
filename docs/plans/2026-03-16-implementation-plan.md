@@ -626,9 +626,7 @@ git commit -m "feat: wire up frontend JS with invoke calls and countdown"
 
 **Files:**
 - Modify: `src-tauri/Cargo.toml`
-- Modify: `src-tauri/tauri.conf.json`
-- Modify: `src-tauri/src/main.rs`
-- Create: `src-tauri/icons/tray-icon.png` (use an existing icon from `src-tauri/icons/`)
+- Modify: `src-tauri/src/lib.rs`
 
 **Step 1: Add the tray plugin dependency**
 
@@ -638,9 +636,9 @@ In `src-tauri/Cargo.toml`, under `[dependencies]`, add:
 tauri-plugin-tray = "2"
 ```
 
-**Step 2: Register the plugin in main.rs**
+**Step 2: Register the plugin in lib.rs**
 
-In `main.rs`, add to the builder:
+In `lib.rs`, add `.plugin(tauri_plugin_tray::init())` to the builder inside `run()`:
 
 ```rust
 tauri::Builder::default()
@@ -650,17 +648,13 @@ tauri::Builder::default()
     .expect("error while running tauri application");
 ```
 
-**Step 3: Add tray permissions in tauri.conf.json**
+**Step 3: Add tray permissions**
 
-In `src-tauri/tauri.conf.json`, add to the `bundle` section or wherever capabilities are defined. Add `"tray-icon"` to the `identifier` capabilities. Check the Tauri v2 docs for the exact capability name: `"tray-icon:default"`.
-
-In the capabilities file (usually `src-tauri/capabilities/default.json`), add:
+In the capabilities file (`src-tauri/capabilities/default.json`), add to the permissions array:
 
 ```json
-"tauri:tray-icon:default"
+"tray-icon:default"
 ```
-
-to the permissions array.
 
 **Step 4: Verify it compiles**
 
@@ -671,7 +665,7 @@ cd src-tauri && cargo build && cd ..
 **Step 5: Commit**
 
 ```bash
-git add src-tauri/Cargo.toml src-tauri/src/main.rs src-tauri/capabilities/
+git add src-tauri/Cargo.toml src-tauri/src/lib.rs src-tauri/capabilities/
 git commit -m "feat: add tauri-plugin-tray dependency"
 ```
 
@@ -680,16 +674,14 @@ git commit -m "feat: add tauri-plugin-tray dependency"
 ### Task 9: Implement tray behavior (hide on close, tray menu)
 
 **Files:**
-- Modify: `src-tauri/src/main.rs`
+- Modify: `src-tauri/src/lib.rs`
 - Modify: `src/main.js`
 
-**Step 1: Update main.rs to set up tray and intercept window close**
+**Step 1: Update lib.rs to set up tray and intercept window close**
 
-Replace the contents of `main.rs` with:
+Replace the contents of `src-tauri/src/lib.rs` with:
 
 ```rust
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
@@ -712,7 +704,8 @@ fn cancel_shutdown() {
         .ok();
 }
 
-fn main() {
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_tray::init())
         .invoke_handler(tauri::generate_handler![start_shutdown, cancel_shutdown])
@@ -801,7 +794,7 @@ Manual checks:
 **Step 3: Commit**
 
 ```bash
-git add src-tauri/src/main.rs
+git add src-tauri/src/lib.rs
 git commit -m "feat: implement system tray with hide-on-close and tray menu"
 ```
 
