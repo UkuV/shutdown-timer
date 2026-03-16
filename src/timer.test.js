@@ -14,8 +14,16 @@ describe("toTotalSeconds", () => {
     expect(toTotalSeconds(0, 0, 45)).toBe(45);
   });
 
-  it("returns 0 for negative values", () => {
+  it("returns 0 for negative hours", () => {
     expect(toTotalSeconds(-1, 0, 0)).toBe(0);
+  });
+
+  it("returns 0 for negative minutes", () => {
+    expect(toTotalSeconds(0, -1, 0)).toBe(0);
+  });
+
+  it("returns 0 for negative seconds", () => {
+    expect(toTotalSeconds(0, 0, -5)).toBe(0);
   });
 
   it("handles string inputs (from HTML inputs)", () => {
