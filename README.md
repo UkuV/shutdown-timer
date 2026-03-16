@@ -53,7 +53,7 @@ The installer will be at `src-tauri/target/release/bundle/nsis/shutdown-timer_*_
 ## Tech Stack
 
 | Layer | Tech |
-|---|---|
+| --- | --- |
 | UI | Vanilla HTML/CSS/JS |
 | IPC | `@tauri-apps/api` |
 | Backend | Rust (Tauri v2) |
@@ -62,7 +62,7 @@ The installer will be at `src-tauri/target/release/bundle/nsis/shutdown-timer_*_
 
 ## Project Structure
 
-```
+```text
 src/
   index.html      # App window
   styles.css      # Dark theme styles
@@ -80,5 +80,6 @@ src-tauri/
 ## Recommended IDE Setup
 
 [VS Code](https://code.visualstudio.com/) with:
+
 - [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode)
 - [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
