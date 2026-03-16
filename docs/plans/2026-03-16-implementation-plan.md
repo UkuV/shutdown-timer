@@ -174,10 +174,10 @@ git commit -m "feat: add start_shutdown and cancel_shutdown Rust commands"
 ### Task 4: Build the UI — HTML structure
 
 **Files:**
-- Modify: `index.html`
-- Delete: `src/style.css` contents (replace fully in Task 5)
+- Modify: `src/index.html`
+- Delete: `src/styles.css` contents (replace fully in Task 5)
 
-**Step 1: Replace index.html**
+**Step 1: Replace src/index.html**
 
 ```html
 <!DOCTYPE html>
@@ -186,7 +186,7 @@ git commit -m "feat: add start_shutdown and cancel_shutdown Rust commands"
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Shutdown Timer</title>
-    <link rel="stylesheet" href="/src/style.css" />
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div class="container">
@@ -216,7 +216,7 @@ git commit -m "feat: add start_shutdown and cancel_shutdown Rust commands"
       <button id="cancel-btn" class="btn btn-danger hidden">Cancel</button>
     </div>
 
-    <script type="module" src="/src/main.js"></script>
+    <script type="module" src="/main.js"></script>
   </body>
 </html>
 ```
@@ -224,7 +224,7 @@ git commit -m "feat: add start_shutdown and cancel_shutdown Rust commands"
 **Step 2: Commit**
 
 ```bash
-git add index.html
+git add src/index.html
 git commit -m "feat: add UI HTML structure"
 ```
 
@@ -233,9 +233,9 @@ git commit -m "feat: add UI HTML structure"
 ### Task 5: Style the UI
 
 **Files:**
-- Modify: `src/style.css`
+- Modify: `src/styles.css`
 
-**Step 1: Replace src/style.css entirely**
+**Step 1: Replace src/styles.css entirely**
 
 ```css
 * {
@@ -377,7 +377,7 @@ Expected: dark themed window with centered inputs and buttons. Close after verif
 **Step 3: Commit**
 
 ```bash
-git add src/style.css
+git add src/styles.css
 git commit -m "feat: add UI styles"
 ```
 
