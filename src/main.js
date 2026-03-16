@@ -31,6 +31,7 @@ function setTimerActive(active) {
     el.disabled = active;
   });
   startBtn.classList.toggle("hidden", active);
+  cancelBtn.disabled = false;
   cancelBtn.classList.toggle("hidden", !active);
   if (!active) {
     statusEl.classList.add("hidden");
@@ -62,7 +63,13 @@ startBtn.addEventListener("click", async () => {
   const total = toTotalSeconds(hours, minutes, seconds);
   if (total === 0) return;
 
-  await invoke("start_shutdown", { seconds: total });
+  try {
+    await invoke("start_shutdown", { seconds: total });
+  } catch {
+    statusEl.classList.remove("hidden");
+    statusEl.textContent = "Failed to schedule shutdown.";
+    return;
+  }
   setTimerActive(true);
   startCountdown(total);
 });
