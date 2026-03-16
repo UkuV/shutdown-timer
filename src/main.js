@@ -1,5 +1,5 @@
-import { invoke } from "@tauri-apps/api/core";
 import { toTotalSeconds, formatCountdown } from "./timer.js";
+const { invoke } =  window.__TAURI__.core;
 
 const hoursInput = document.getElementById("hours");
 const minutesInput = document.getElementById("minutes");
