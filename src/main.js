@@ -89,9 +89,22 @@ cancelBtn.addEventListener("click", async () => {
   validateInputs();
 });
 
-// Disable start when inputs are all 0
+function clampInput(el) {
+  const max = parseInt(el.max, 10);
+  const val = parseInt(el.value, 10);
+  if (isNaN(val) || val < 0) el.value = 0;
+  else if (val > max) el.value = max;
+}
+
 [hoursInput, minutesInput, secondsInput].forEach((el) => {
-  el.addEventListener("input", validateInputs);
+  el.addEventListener("keydown", (e) => {
+    const allowed = ["Backspace", "Delete", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Tab"];
+    if (!allowed.includes(e.key) && !/^\d$/.test(e.key)) e.preventDefault();
+  });
+  el.addEventListener("input", () => {
+    clampInput(el);
+    validateInputs();
+  });
 });
 
 // Initial validation
