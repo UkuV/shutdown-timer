@@ -33,7 +33,7 @@ pub fn run() {
             let menu = Menu::with_items(app, &[&open_item, &cancel_item, &quit_item])?;
 
             TrayIconBuilder::new()
-                .icon(app.default_window_icon().unwrap().clone())
+                .icon(app.default_window_icon().ok_or("no window icon configured")?.clone())
                 .menu(&menu)
                 .on_menu_event(|app, event| match event.id.as_ref() {
                     "open" => {
@@ -43,24 +43,15 @@ pub fn run() {
                         }
                     }
                     "cancel" => {
-                        std::process::Command::new("shutdown")
-                            .arg("/a")
-                            .spawn()
-                            .ok();
                         if let Some(window) = app.get_webview_window("main") {
                             let _ = window.eval("window.__cancelTimer && window.__cancelTimer()");
                         }
                     }
                     "quit" => {
+                        // Cancel any pending shutdown before exiting so the OS timer doesn't outlive the app
+                        std::process::Command::new("shutdown").arg("/a").spawn().ok();
                         if let Some(window) = app.get_webview_window("main") {
-                            let _ = window.eval(
-                                "if (window.__isTimerActive && window.__isTimerActive()) { \
-                                    if (confirm('A shutdown is scheduled. Cancel it before quitting?')) { \
-                                        window.__cancelTimer && window.__cancelTimer(); \
-                                    } \
-                                } \
-                                window.__confirmQuit = true;",
-                            );
+                            let _ = window.eval("window.__cancelTimer && window.__cancelTimer()");
                         }
                         app.exit(0);
                     }
