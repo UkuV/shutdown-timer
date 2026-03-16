@@ -23,16 +23,27 @@ fn cancel_shutdown() {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            if let Some(window) = app.get_webview_window("main") {
+                window.show().ok();
+                window.set_focus().ok();
+            }
+        }))
         .invoke_handler(tauri::generate_handler![start_shutdown, cancel_shutdown])
         .setup(|app| {
             let open_item = MenuItem::with_id(app, "open", "Open", true, None::<&str>)?;
-            let cancel_item = MenuItem::with_id(app, "cancel", "Cancel Shutdown", true, None::<&str>)?;
+            let cancel_item =
+                MenuItem::with_id(app, "cancel", "Cancel Shutdown", true, None::<&str>)?;
             let quit_item = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
 
             let menu = Menu::with_items(app, &[&open_item, &cancel_item, &quit_item])?;
 
             TrayIconBuilder::new()
-                .icon(app.default_window_icon().ok_or("no window icon configured")?.clone())
+                .icon(
+                    app.default_window_icon()
+                        .ok_or("no window icon configured")?
+                        .clone(),
+                )
                 .menu(&menu)
                 .on_menu_event(|app, event| match event.id.as_ref() {
                     "open" => {
@@ -48,7 +59,10 @@ pub fn run() {
                     }
                     "quit" => {
                         // Cancel any pending shutdown before exiting so the OS timer doesn't outlive the app
-                        std::process::Command::new("shutdown").arg("/a").spawn().ok();
+                        std::process::Command::new("shutdown")
+                            .arg("/a")
+                            .spawn()
+                            .ok();
                         if let Some(window) = app.get_webview_window("main") {
                             let _ = window.eval("window.__cancelTimer && window.__cancelTimer()");
                         }
