@@ -50,6 +50,7 @@ function startCountdown(totalSeconds) {
     if (remaining <= 0) {
       clearInterval(countdownInterval);
       countdownInterval = null;
+      isTimerActive = false;
       statusEl.textContent = "Shutting down...";
       cancelBtn.disabled = true;
     } else {
@@ -75,7 +76,13 @@ startBtn.addEventListener("click", async () => {
 });
 
 cancelBtn.addEventListener("click", async () => {
-  await invoke("cancel_shutdown");
+  try {
+    await invoke("cancel_shutdown");
+  } catch {
+    statusEl.classList.remove("hidden");
+    statusEl.textContent = "Failed to cancel shutdown.";
+    return;
+  }
   clearInterval(countdownInterval);
   countdownInterval = null;
   setTimerActive(false);
@@ -93,7 +100,11 @@ validateInputs();
 // Expose for tray menu cancel action
 window.__isTimerActive = () => isTimerActive;
 window.__cancelTimer = async () => {
-  await invoke("cancel_shutdown");
+  try {
+    await invoke("cancel_shutdown");
+  } catch {
+    return;
+  }
   clearInterval(countdownInterval);
   countdownInterval = null;
   setTimerActive(false);
