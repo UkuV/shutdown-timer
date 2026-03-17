@@ -11,6 +11,25 @@ export function toTotalSeconds(hours, minutes, seconds) {
 }
 
 /**
+ * Clamps a value between min and max. Returns min for NaN/below-min values.
+ */
+export function clampValue(val, min, max) {
+  const n = parseInt(val, 10);
+  if (isNaN(n) || n < min) return min;
+  if (n > max) return max;
+  return n;
+}
+
+export const actionLabels = {
+  shutdown: "Shutting down",
+  restart: "Restarting",
+  sleep: "Sleeping",
+  hibernate: "Hibernating",
+  logoff: "Logging off",
+  lock: "Locking",
+};
+
+/**
  * Formats a number of seconds as HH:MM:SS.
  */
 export function formatCountdown(totalSeconds) {

@@ -1,4 +1,4 @@
-import { toTotalSeconds, formatCountdown } from "./timer.js";
+import { toTotalSeconds, formatCountdown, clampValue, actionLabels } from "./timer.js";
 const { invoke } =  window.__TAURI__.core;
 
 const hoursInput = document.getElementById("hours");
@@ -9,14 +9,6 @@ const startBtn = document.getElementById("start-btn");
 const cancelBtn = document.getElementById("cancel-btn");
 const statusEl = document.getElementById("status");
 
-const actionLabels = {
-  shutdown: "Shutting down",
-  restart: "Restarting",
-  sleep: "Sleeping",
-  hibernate: "Hibernating",
-  logoff: "Logging off",
-  lock: "Locking",
-};
 
 let countdownInterval = null;
 let isTimerActive = false;
@@ -107,10 +99,7 @@ cancelBtn.addEventListener("click", async () => {
 });
 
 function clampInput(el) {
-  const max = parseInt(el.max, 10);
-  const val = parseInt(el.value, 10);
-  if (isNaN(val) || val < 0) el.value = 0;
-  else if (val > max) el.value = max;
+  el.value = clampValue(el.value, 0, parseInt(el.max, 10));
 }
 
 [hoursInput, minutesInput, secondsInput].forEach((el) => {
