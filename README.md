@@ -43,6 +43,15 @@ npm run dev
 npm test
 ```
 
+### Releasing
+
+Push a version tag to trigger the GitHub Actions release workflow. It builds on a Windows runner and publishes the `.exe` and `.msi` installers to a GitHub Release automatically.
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
 ### Build for production (Windows only)
 
 ```bash
