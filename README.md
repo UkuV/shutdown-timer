@@ -5,6 +5,7 @@ A Windows desktop app for scheduling a system shutdown via a clean countdown UI.
 ## Features
 
 - Set a countdown timer by hours, minutes, and seconds
+- Choose the action to perform: shutdown, restart, sleep, hibernate, log off, or lock
 - Visual countdown display (the real timer lives in Windows — the app closing won't cancel it)
 - Cancel a scheduled shutdown at any time
 - Minimizes to the system tray on close — the timer keeps running in the background
@@ -33,7 +34,7 @@ npm install
 ### Run in development
 
 ```bash
-npm run tauri dev
+npm run dev
 ```
 
 ### Run tests
@@ -45,7 +46,7 @@ npm test
 ### Build for production (Windows only)
 
 ```bash
-npm run tauri build
+npm run build
 ```
 
 The installer will be at `src-tauri/target/release/bundle/nsis/shutdown-timer_*_x64-setup.exe`.
@@ -67,7 +68,7 @@ src/
   index.html      # App window
   styles.css      # Dark theme styles
   main.js         # UI logic, invoke calls, tray bridge
-  timer.js        # Pure functions: toTotalSeconds, formatCountdown
+  timer.js        # Pure functions: toTotalSeconds, formatCountdown, clampValue, actionLabels
   timer.test.js   # Unit tests
 src-tauri/
   src/
