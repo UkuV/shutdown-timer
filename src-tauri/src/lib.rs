@@ -1,23 +1,80 @@
+use std::sync::Mutex;
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     Manager, WindowEvent,
 };
 
+static CANCEL_TX: Mutex<Option<std::sync::mpsc::Sender<()>>> = Mutex::new(None);
+
+fn execute_timed_action(action: &str) {
+    match action {
+        "sleep" => {
+            std::process::Command::new("rundll32.exe")
+                .args(["powrprof.dll,SetSuspendState", "0,1,0"])
+                .spawn()
+                .ok();
+        }
+        "hibernate" => {
+            std::process::Command::new("shutdown")
+                .arg("/h")
+                .spawn()
+                .ok();
+        }
+        "logoff" => {
+            std::process::Command::new("shutdown")
+                .arg("/l")
+                .spawn()
+                .ok();
+        }
+        "lock" => {
+            std::process::Command::new("rundll32.exe")
+                .args(["user32.dll,LockWorkStation"])
+                .spawn()
+                .ok();
+        }
+        _ => {}
+    }
+}
+
 #[tauri::command]
-fn start_shutdown(seconds: u32) {
-    std::process::Command::new("shutdown")
-        .args(["/s", "/t", &seconds.to_string()])
-        .spawn()
-        .ok();
+fn start_shutdown(seconds: u32, action: String) {
+    match action.as_str() {
+        "shutdown" => {
+            std::process::Command::new("shutdown")
+                .args(["/s", "/t", &seconds.to_string()])
+                .spawn()
+                .ok();
+        }
+        "restart" => {
+            std::process::Command::new("shutdown")
+                .args(["/r", "/t", &seconds.to_string()])
+                .spawn()
+                .ok();
+        }
+        _ => {
+            let (tx, rx) = std::sync::mpsc::channel();
+            *CANCEL_TX.lock().unwrap() = Some(tx);
+            std::thread::spawn(move || {
+                match rx.recv_timeout(std::time::Duration::from_secs(seconds as u64)) {
+                    Err(std::sync::mpsc::RecvTimeoutError::Timeout) => {
+                        execute_timed_action(&action);
+                    }
+                    _ => {}
+                }
+            });
+        }
+    }
 }
 
 #[tauri::command]
 fn cancel_shutdown() {
-    std::process::Command::new("shutdown")
-        .arg("/a")
-        .spawn()
-        .ok();
+    std::process::Command::new("shutdown").arg("/a").spawn().ok();
+    if let Ok(mut guard) = CANCEL_TX.lock() {
+        if let Some(tx) = guard.take() {
+            tx.send(()).ok();
+        }
+    }
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

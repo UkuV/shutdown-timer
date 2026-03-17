@@ -29,6 +29,35 @@ h1 {
   color: #a0c4ff;
 }
 
+.action-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+select {
+  padding: 7px 12px;
+  font-size: 0.95rem;
+  background: #16213e;
+  border: 1px solid #2a2a5a;
+  border-radius: 6px;
+  color: #e0e0e0;
+  outline: none;
+  cursor: pointer;
+  min-width: 140px;
+  text-align: center;
+}
+
+select:focus {
+  border-color: #a0c4ff;
+}
+
+select:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .inputs {
   display: flex;
   align-items: flex-end;

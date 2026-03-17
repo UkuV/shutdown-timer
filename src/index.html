@@ -10,6 +10,18 @@
     <div class="container">
       <h1>Shutdown Timer</h1>
 
+      <div class="action-group">
+        <label for="action">Action</label>
+        <select id="action">
+          <option value="shutdown" selected>Shutdown</option>
+          <option value="restart">Restart</option>
+          <option value="sleep">Sleep</option>
+          <option value="hibernate">Hibernate</option>
+          <option value="logoff">Log Off</option>
+          <option value="lock">Lock</option>
+        </select>
+      </div>
+
       <div class="inputs">
         <div class="input-group">
           <label for="hours">Hours</label>

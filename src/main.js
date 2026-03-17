@@ -4,9 +4,19 @@ const { invoke } =  window.__TAURI__.core;
 const hoursInput = document.getElementById("hours");
 const minutesInput = document.getElementById("minutes");
 const secondsInput = document.getElementById("seconds-input");
+const actionSelect = document.getElementById("action");
 const startBtn = document.getElementById("start-btn");
 const cancelBtn = document.getElementById("cancel-btn");
 const statusEl = document.getElementById("status");
+
+const actionLabels = {
+  shutdown: "Shutting down",
+  restart: "Restarting",
+  sleep: "Sleeping",
+  hibernate: "Hibernating",
+  logoff: "Logging off",
+  lock: "Locking",
+};
 
 let countdownInterval = null;
 let isTimerActive = false;
@@ -27,7 +37,7 @@ function validateInputs() {
 
 function setTimerActive(active) {
   isTimerActive = active;
-  [hoursInput, minutesInput, secondsInput].forEach((el) => {
+  [hoursInput, minutesInput, secondsInput, actionSelect].forEach((el) => {
     el.disabled = active;
   });
   startBtn.classList.toggle("hidden", active);
@@ -39,11 +49,12 @@ function setTimerActive(active) {
   }
 }
 
-function startCountdown(totalSeconds) {
+function startCountdown(totalSeconds, action) {
   let remaining = totalSeconds;
+  const label = actionLabels[action] ?? "Shutting down";
 
   statusEl.classList.remove("hidden");
-  statusEl.textContent = `Shutting down in ${formatCountdown(remaining)}...`;
+  statusEl.textContent = `${label} in ${formatCountdown(remaining)}...`;
 
   countdownInterval = setInterval(() => {
     remaining -= 1;
@@ -51,10 +62,10 @@ function startCountdown(totalSeconds) {
       clearInterval(countdownInterval);
       countdownInterval = null;
       isTimerActive = false;
-      statusEl.textContent = "Shutting down...";
+      statusEl.textContent = `${label}...`;
       cancelBtn.disabled = true;
     } else {
-      statusEl.textContent = `Shutting down in ${formatCountdown(remaining)}...`;
+      statusEl.textContent = `${label} in ${formatCountdown(remaining)}...`;
     }
   }, 1000);
 }
@@ -63,20 +74,22 @@ startBtn.addEventListener("click", async () => {
   const { hours, minutes, seconds } = getInputs();
   const total = toTotalSeconds(hours, minutes, seconds);
   if (total === 0) return;
+  const action = actionSelect.value;
 
   localStorage.setItem("default_hours", hours);
   localStorage.setItem("default_minutes", minutes);
   localStorage.setItem("default_seconds", seconds);
+  localStorage.setItem("default_action", action);
 
   try {
-    await invoke("start_shutdown", { seconds: total });
+    await invoke("start_shutdown", { seconds: total, action });
   } catch {
     statusEl.classList.remove("hidden");
-    statusEl.textContent = "Failed to schedule shutdown.";
+    statusEl.textContent = "Failed to schedule action.";
     return;
   }
   setTimerActive(true);
-  startCountdown(total);
+  startCountdown(total, action);
 });
 
 cancelBtn.addEventListener("click", async () => {
@@ -115,6 +128,8 @@ function clampInput(el) {
 hoursInput.value = localStorage.getItem("default_hours") ?? hoursInput.value;
 minutesInput.value = localStorage.getItem("default_minutes") ?? minutesInput.value;
 secondsInput.value = localStorage.getItem("default_seconds") ?? secondsInput.value;
+const savedAction = localStorage.getItem("default_action");
+if (savedAction) actionSelect.value = savedAction;
 
 // Initial validation
 validateInputs();
