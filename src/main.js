@@ -64,6 +64,10 @@ startBtn.addEventListener("click", async () => {
   const total = toTotalSeconds(hours, minutes, seconds);
   if (total === 0) return;
 
+  localStorage.setItem("default_hours", hours);
+  localStorage.setItem("default_minutes", minutes);
+  localStorage.setItem("default_seconds", seconds);
+
   try {
     await invoke("start_shutdown", { seconds: total });
   } catch {
@@ -106,6 +110,11 @@ function clampInput(el) {
     validateInputs();
   });
 });
+
+// Restore saved defaults
+hoursInput.value = localStorage.getItem("default_hours") ?? hoursInput.value;
+minutesInput.value = localStorage.getItem("default_minutes") ?? minutesInput.value;
+secondsInput.value = localStorage.getItem("default_seconds") ?? secondsInput.value;
 
 // Initial validation
 validateInputs();
