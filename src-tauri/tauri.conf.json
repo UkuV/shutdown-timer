@@ -15,7 +15,8 @@
         "width": 400,
         "height": 300,
         "resizable": false,
-        "center": true
+        "center": true,
+        "visible": false
       }
     ],
     "security": {

@@ -1,5 +1,5 @@
 import { toTotalSeconds, formatCountdown, clampValue, actionLabels } from "./timer.js";
-const { invoke } =  window.__TAURI__.core;
+const { invoke } = globalThis.__TAURI__.core;
 
 const hoursInput = document.getElementById("hours");
 const minutesInput = document.getElementById("minutes");
@@ -123,9 +123,12 @@ if (savedAction) actionSelect.value = savedAction;
 // Initial validation
 validateInputs();
 
+globalThis.__appReady = true;
+globalThis.__TAURI__.window.getCurrentWindow().show();
+
 // Expose for tray menu cancel action
-window.__isTimerActive = () => isTimerActive;
-window.__cancelTimer = async () => {
+globalThis.__isTimerActive = () => isTimerActive;
+globalThis.__cancelTimer = async () => {
   try {
     await invoke("cancel_shutdown");
   } catch {

@@ -82,8 +82,21 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             if let Some(window) = app.get_webview_window("main") {
-                window.show().ok();
-                window.set_focus().ok();
+                // If the frontend isn't ready yet, wait for it before showing
+                let _ = window.eval(
+                    "if (globalThis.__appReady) { \
+                        window.__TAURI__.window.getCurrentWindow().show(); \
+                        window.__TAURI__.window.getCurrentWindow().setFocus(); \
+                    } else { \
+                        const iv = setInterval(() => { \
+                            if (globalThis.__appReady) { \
+                                clearInterval(iv); \
+                                window.__TAURI__.window.getCurrentWindow().show(); \
+                                window.__TAURI__.window.getCurrentWindow().setFocus(); \
+                            } \
+                        }, 50); \
+                    }"
+                );
             }
         }))
         .invoke_handler(tauri::generate_handler![start_shutdown, cancel_shutdown])
@@ -111,7 +124,7 @@ pub fn run() {
                     }
                     "cancel" => {
                         if let Some(window) = app.get_webview_window("main") {
-                            let _ = window.eval("window.__cancelTimer && window.__cancelTimer()");
+                            let _ = window.eval("globalThis.__cancelTimer && globalThis.__cancelTimer()");
                         }
                     }
                     "quit" => {
@@ -121,7 +134,7 @@ pub fn run() {
                             .spawn()
                             .ok();
                         if let Some(window) = app.get_webview_window("main") {
-                            let _ = window.eval("window.__cancelTimer && window.__cancelTimer()");
+                            let _ = window.eval("globalThis.__cancelTimer && globalThis.__cancelTimer()");
                         }
                         app.exit(0);
                     }
